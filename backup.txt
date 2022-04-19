@@ -1,0 +1,34 @@
+
+
+#define F_CPU 8000000UL
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+#define LED_Direction DDRB		/* define LED Direction */
+#define LED_PORT PORTB			/* define LED port */
+int button = 0;
+
+int main(void)
+{
+	LED_Direction |= 0xff;			/* define LED port direction is output */
+	LED_PORT = 0xff;
+	GICR |= (1<<INT0);
+	MCUCR |= (1<<ISC01);
+	sei();
+	
+	char array[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,0x80,0x90};	
+					///* write hex value for CA display from 0 to 9 */ 
+	
+    button = 0;
+    while(1)
+    {
+			LED_PORT = array[button]; /* write data on to the LED port */
+    }
+}
+
+ISR(INT0_vect){
+	button++;
+	char array[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,0x80,0x90};
+	LED_PORT = array[button];
+	if (button > 9) button = 0;
+}
